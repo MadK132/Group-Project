@@ -109,7 +109,8 @@ public class FlightSystems {
 }
     public void addFlightDetails(String flightnumber, String departure_location, String destination_location, Timestamp departure_time, Timestamp arrival_time, int available_seats) {
         try {        connection = db.getConnection();
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO flightdetails (flight_number, departure_location, destination_location, departure_time, arrival_time, available_seats) VALUES (?, ?, ?, ?, ?, ?)");        statement.setString(1, flightnumber);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO flightdetails (flight_number, departure_location, destination_location, departure_time, arrival_time, available_seats) VALUES (?, ?, ?, ?, ?, ?)");
+            statement.setString(1, flightnumber);
             statement.setString(2, departure_location);        statement.setString(3, destination_location);
             statement.setTimestamp(4, departure_time);        statement.setTimestamp(5, arrival_time);
             statement.setInt(6, available_seats);        statement.executeUpdate();
@@ -140,22 +141,25 @@ public class FlightSystems {
             System.out.println("Something went wrong: " + e.getMessage());
         }
     }
-    public void changeSeats(String flightNumber, int availableSeats) {
+    public void displayAvailableFlights() {
         try {
-        connection = db.getConnection();
-        PreparedStatement statement = connection.prepareStatement("UPDATE FlightDetails SET available_seats = ? WHERE flight_number = ?");
-        statement.setInt(1, availableSeats);
-        statement.setString(2, flightNumber);
-        int rowsAffected = statement.executeUpdate();
-        if (rowsAffected == 0) {
-            System.out.println("Flight '" + flightNumber + "' not found in the database.");
+            connection = db.getConnection();
+            if (connection != null) {
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM flightdetails");
+                while (resultSet.next()) {
+                    System.out.println("Flight: " + resultSet.getString("flight_number") +
+                            ", Departure: " + resultSet.getString("departure_location") +
+                            ", Destination: " + resultSet.getString("destination_location") +
+                            ", Departure Time: " + resultSet.getTimestamp("departure_time") +
+                            ", Arrival Time: " + resultSet.getTimestamp("arrival_time") +
+                            ", Available Seats: " + resultSet.getInt("available_seats"));
+                }
+            } else {
+                System.out.println("Connection to database is null.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Something went Wrong" + e.getMessage());
         }
-        else {
-            System.out.println("Available seats updated successfully.");
-        }
-    }
-        catch (SQLException e) {
-            System.out.println("Something went wrong: " + e.getMessage());
-    }
     }
 }
