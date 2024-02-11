@@ -26,7 +26,8 @@ public class FlightSystems {
             statement.setString(5, hashed_password);
             statement.executeUpdate();
             System.out.println("Passenger created successfully.");
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
     }
@@ -40,7 +41,8 @@ public class FlightSystems {
             if (resultSet.next()){
                 return resultSet.getString("password");
             }
-        }catch (SQLException e){
+        }
+        catch (SQLException e){
             System.out.println("Something went wrong: " + e.getMessage());
         }
         return null;
@@ -51,7 +53,8 @@ public class FlightSystems {
         int flightId = getFlightIdByFlightNumber(flightNumber);
         int passengerId = getPassengerIdByPassengerName(phone_number);
         if (flightId != -1 && passengerId != -1) {
-            try {            PreparedStatement statement = connection.prepareStatement("INSERT INTO reserve (flight_id, passenger_id, reserve_date) VALUES (?, ?, CURRENT_TIMESTAMP) RETURNING reserve_id");
+            try {
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO reserve (flight_id, passenger_id, reserve_date) VALUES (?, ?, CURRENT_TIMESTAMP) RETURNING reserve_id");
                 statement.setInt(1, flightId);
                 statement.setInt(2, passengerId);
                 ResultSet resultSet = statement.executeQuery();
