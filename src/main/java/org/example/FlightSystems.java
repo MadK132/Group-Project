@@ -10,8 +10,9 @@ import java.util.Scanner;
 public class FlightSystems {
     private Connection connection = null;
     private final IDB db;
-    public FlightSystems(IDB db){
-       this.db = db;
+
+    public FlightSystems(IDB db) {
+        this.db = db;
     }
 
     //create account for passenger
@@ -26,28 +27,28 @@ public class FlightSystems {
             statement.setString(5, hashed_password);
             statement.executeUpdate();
             System.out.println("Passenger created successfully.");
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
     }
+
     //getting hashed password from passengers account
-    public String getPassword(String phone_number){
-        try{
+    public String getPassword(String phone_number) {
+        try {
             connection = db.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT password FROM passenger WHERE phone_number = ?");
             statement.setString(1, phone_number);
             ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return resultSet.getString("password");
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
         return null;
     }
-    public void makeReservation(String flightNumber, String phone_number) throws SQLException {
+
+    public void makeReservation(String flightNumber, String phone_number){
         connection = db.getConnection();
         int reservationId = -1;
         int flightId = getFlightIdByFlightNumber(flightNumber);
@@ -65,82 +66,88 @@ public class FlightSystems {
                 statementUpdate.setInt(1, flightId);
                 statementUpdate.executeUpdate();
                 System.out.println("Reservation made successfully. Your reservation ID is: " + reservationId);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 System.out.println("Something went wrong: " + e.getMessage());
             }
-        }
-        else {
+        } else {
             System.out.println("Flight or passenger not found.");
         }
     }
-// Method to get the flight ID by flight numberpublic
-    int getFlightIdByFlightNumber(String flightNumber) throws SQLException {
-    connection = db.getConnection();
-    int flightId = -1;
-    try {
-        PreparedStatement statement = connection.prepareStatement("SELECT flight_id FROM FlightDetails WHERE flight_number = ?");
-        statement.setString(1, flightNumber);
-        ResultSet resultSet = statement.executeQuery();
-        if (resultSet.next()) {
-            flightId = resultSet.getInt("flight_id");
-        }
-    }
-    catch (SQLException e) {
-        System.out.println("Something went wrong: " + e.getMessage());
-    }
-    return flightId;
-    }
-// Method to get the passenger ID by passenger phone number
-    public int getPassengerIdByPassengerName(String phone_number) throws SQLException {
+
+    // Method to get the flight ID by flight number
+    public int getFlightIdByFlightNumber(String flightNumber) {
         connection = db.getConnection();
-    int passengerId = -1;
-    try {
-        PreparedStatement statement = connection.prepareStatement("SELECT passenger_id FROM Passenger WHERE phone_number = ?");
-        statement.setString(1, phone_number);
-        ResultSet resultSet = statement.executeQuery();
-        if (resultSet.next()) {
-            passengerId = resultSet.getInt("passenger_id");        }
+        int flightId = -1;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT flight_id FROM FlightDetails WHERE flight_number = ?");
+            statement.setString(1, flightNumber);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                flightId = resultSet.getInt("flight_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+        return flightId;
     }
-    catch (SQLException e) {
-        System.out.println("Something went wrong: " + e.getMessage());
+
+    // Method to get the passenger ID by passenger phone number
+    public int getPassengerIdByPassengerName(String phone_number) {
+        connection = db.getConnection();
+        int passengerId = -1;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT passenger_id FROM Passenger WHERE phone_number = ?");
+            statement.setString(1, phone_number);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                passengerId = resultSet.getInt("passenger_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+        return passengerId;
     }
-    return passengerId;
-}
+
+    //adding flight to table
     public void addFlightDetails(String flightnumber, String departure_location, String destination_location, Timestamp departure_time, Timestamp arrival_time, int available_seats) {
-        try {        connection = db.getConnection();
+        try {
+            connection = db.getConnection();
             PreparedStatement statement = connection.prepareStatement("INSERT INTO flightdetails (flight_number, departure_location, destination_location, departure_time, arrival_time, available_seats) VALUES (?, ?, ?, ?, ?, ?)");
             statement.setString(1, flightnumber);
-            statement.setString(2, departure_location);        statement.setString(3, destination_location);
-            statement.setTimestamp(4, departure_time);        statement.setTimestamp(5, arrival_time);
-            statement.setInt(6, available_seats);        statement.executeUpdate();
-        }
-        catch (SQLException e){
+            statement.setString(2, departure_location);
+            statement.setString(3, destination_location);
+            statement.setTimestamp(4, departure_time);
+            statement.setTimestamp(5, arrival_time);
+            statement.setInt(6, available_seats);
+            statement.executeUpdate();
+        } catch (SQLException e) {
             System.out.println("Something went Wrong" + e.getMessage());
         }
     }
+
     //delete flights
     public void deleteFlights(String flightNumber) {
         try {
-        connection = db.getConnection();
-        // First, delete reservations related to the flight
-        PreparedStatement deleteReservationsStatement = connection.prepareStatement("DELETE FROM Reserve WHERE flight_id IN (SELECT flight_id FROM FlightDetails WHERE flight_number = ?)");        deleteReservationsStatement.setString(1, flightNumber);
-        int reservationsDeleted = deleteReservationsStatement.executeUpdate();
-        // Then, delete the flight from the FlightDetails table
-        PreparedStatement deleteFlightStatement = connection.prepareStatement("DELETE FROM FlightDetails WHERE flight_number = ?");
-        deleteFlightStatement.setString(1, flightNumber);
-        int flightsDeleted = deleteFlightStatement.executeUpdate();
-        if (flightsDeleted > 0) {
-            System.out.println("Deleted flight " + flightNumber + ".");
-        }
-        else {
-            System.out.println("Flight " + flightNumber + " not found.");
-        }
-        }
-        catch (SQLException e) {
+            connection = db.getConnection();
+            // First, delete reservations related to the flight
+            PreparedStatement deleteReservationsStatement = connection.prepareStatement("DELETE FROM Reserve WHERE flight_id IN (SELECT flight_id FROM FlightDetails WHERE flight_number = ?)");
+            deleteReservationsStatement.setString(1, flightNumber);
+            deleteReservationsStatement.executeUpdate();
+            // Then, delete the flight from the FlightDetails table
+            PreparedStatement deleteFlightStatement = connection.prepareStatement("DELETE FROM FlightDetails WHERE flight_number = ?");
+            deleteFlightStatement.setString(1, flightNumber);
+            int flightsDeleted = deleteFlightStatement.executeUpdate();
+            if (flightsDeleted > 0) {
+                System.out.println("Deleted flight " + flightNumber + ".");
+            } else {
+                System.out.println("Flight " + flightNumber + " not found.");
+            }
+        } catch (SQLException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
     }
+
+    //show all flights
     public void displayAvailableFlights() {
         try {
             connection = db.getConnection();
@@ -162,6 +169,8 @@ public class FlightSystems {
             System.out.println("Something went Wrong" + e.getMessage());
         }
     }
+
+    //change number of seats in flight details
     public void changeSeats(String flightNumber, int availableSeats) {
         try {
             connection = db.getConnection();
@@ -171,13 +180,82 @@ public class FlightSystems {
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected == 0) {
                 System.out.println("Flight '" + flightNumber + "' not found in the database.");
-            }
-            else {
+            } else {
                 System.out.println("Available seats updated successfully.");
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
+    }
+
+    //to view reservation details by id
+    public void viewReservationHistory(int reservationId) {
+        try {
+            connection = db.getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM Reserve WHERE reserve_id = ?");
+            statement.setInt(1, reservationId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int flightId = resultSet.getInt("flight_id");
+                int passengerId = resultSet.getInt("passenger_id");
+                Timestamp reserveDate = resultSet.getTimestamp("reserve_date");
+
+                PreparedStatement flightStatement = connection.prepareStatement("SELECT flight_number, departure_location, destination_location FROM FlightDetails WHERE flight_id = ?");
+                flightStatement.setInt(1, flightId);
+                ResultSet flightResultSet = flightStatement.executeQuery();
+
+                PreparedStatement passengerStatement = connection.prepareStatement("SELECT first_name, last_name, phone_number FROM Passenger WHERE passenger_id = ?");
+                passengerStatement.setInt(1, passengerId);
+                ResultSet passengerResultSet = passengerStatement.executeQuery();
+
+                if (flightResultSet.next() && passengerResultSet.next()) {
+                    String flightNumber = flightResultSet.getString("flight_number");
+                    String departureLocation = flightResultSet.getString("departure_location");
+                    String destinationLocation = flightResultSet.getString("destination_location");
+                    String passengerName = passengerResultSet.getString("first_name") + " " + passengerResultSet.getString("last_name");
+                    String phone_number = passengerResultSet.getString("phone_number");
+                    Scanner sc = new Scanner(System.in);
+                    System.out.println("Write password from " + phone_number + " account to see reservation history: ");
+                    String password = sc.next();
+                    Person passenger = new Person();
+                    if (passenger.authenticate(password, phone_number)) {
+                        System.out.println("Reservation ID: " + reservationId);
+                        System.out.println("Flight Number: " + flightNumber);
+                        System.out.println("Departure Location: " + departureLocation);
+                        System.out.println("Destination Location: " + destinationLocation);
+                        System.out.println("Passenger Name: " + passengerName);
+                        System.out.println("Reservation Date: " + reserveDate);
+                    } else {
+                        System.out.println("Incorrect password returning back...");
+                    }
+                } else {
+                    System.out.println("Flight or Passenger not found.");
+                }
+            } else {
+                System.out.println("Reservation not found.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+    }
+
+    //check if phone number already exists
+    public boolean checkExistingUser(String phone_number) {
+        connection = db.getConnection();
+        boolean userExists = false;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM passenger WHERE phone_number = ?");
+            statement.setString(1, phone_number);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt(1);
+                userExists = count > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+        return userExists;
     }
 }
