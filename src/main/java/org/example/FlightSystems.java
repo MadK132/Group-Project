@@ -162,4 +162,22 @@ public class FlightSystems {
             System.out.println("Something went Wrong" + e.getMessage());
         }
     }
+    public void changeSeats(String flightNumber, int availableSeats) {
+        try {
+            connection = db.getConnection();
+            PreparedStatement statement = connection.prepareStatement("UPDATE FlightDetails SET available_seats = ? WHERE flight_number = ?");
+            statement.setInt(1, availableSeats);
+            statement.setString(2, flightNumber);
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                System.out.println("Flight '" + flightNumber + "' not found in the database.");
+            }
+            else {
+                System.out.println("Available seats updated successfully.");
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+    }
 }
