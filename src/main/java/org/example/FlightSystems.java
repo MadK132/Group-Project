@@ -107,4 +107,37 @@ public class FlightSystems {
     }
     return passengerId;
 }
+    public void addFlightDetails(String flightnumber, String departure_location, String destination_location, Timestamp departure_time, Timestamp arrival_time, int available_seats) {
+        try {        connection = db.getConnection();
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO flightdetails (flight_number, departure_location, destination_location, departure_time, arrival_time, available_seats) VALUES (?, ?, ?, ?, ?, ?)");        statement.setString(1, flightnumber);
+            statement.setString(2, departure_location);        statement.setString(3, destination_location);
+            statement.setTimestamp(4, departure_time);        statement.setTimestamp(5, arrival_time);
+            statement.setInt(6, available_seats);        statement.executeUpdate();
+        }
+        catch (SQLException e){
+            System.out.println("Something went Wrong" + e.getMessage());
+        }
+    }
+    //delete flights
+    public void deleteFlights(String flightNumber) {
+        try {
+        connection = db.getConnection();
+        // First, delete reservations related to the flight
+        PreparedStatement deleteReservationsStatement = connection.prepareStatement("DELETE FROM Reserve WHERE flight_id IN (SELECT flight_id FROM FlightDetails WHERE flight_number = ?)");        deleteReservationsStatement.setString(1, flightNumber);
+        int reservationsDeleted = deleteReservationsStatement.executeUpdate();
+        // Then, delete the flight from the FlightDetails table
+        PreparedStatement deleteFlightStatement = connection.prepareStatement("DELETE FROM FlightDetails WHERE flight_number = ?");
+        deleteFlightStatement.setString(1, flightNumber);
+        int flightsDeleted = deleteFlightStatement.executeUpdate();
+        if (flightsDeleted > 0) {
+            System.out.println("Deleted flight " + flightNumber + ".");
+        }
+        else {
+            System.out.println("Flight " + flightNumber + " not found.");
+        }
+        }
+        catch (SQLException e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
+    }
 }
