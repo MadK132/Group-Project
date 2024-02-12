@@ -23,7 +23,7 @@ public class BoardingPass {
         setPhone_number(phone_number);
     }
 
-    public void MakeReservation() throws SQLException {
+    public void MakeReservation() {
         FlightSystems flightSystems = new FlightSystems(db);
         flightSystems.makeReservation(getFlight_number(), getPhone_number());
     }

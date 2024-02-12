@@ -155,13 +155,17 @@ public class FlightSystems {
             if (connection != null) {
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT * FROM flightdetails");
-                while (resultSet.next()) {
-                    System.out.println("Flight: " + resultSet.getString("flight_number") +
-                            ", Departure: " + resultSet.getString("departure_location") +
-                            ", Destination: " + resultSet.getString("destination_location") +
-                            ", Departure Time: " + resultSet.getTimestamp("departure_time") +
-                            ", Arrival Time: " + resultSet.getTimestamp("arrival_time") +
-                            ", Available Seats: " + resultSet.getInt("available_seats"));
+                if(!resultSet.isBeforeFirst()){
+                    System.out.println("No available flights found.");
+                }else {
+                    while (resultSet.next()) {
+                        System.out.println("Flight: " + resultSet.getString("flight_number") +
+                                ", Departure: " + resultSet.getString("departure_location") +
+                                ", Destination: " + resultSet.getString("destination_location") +
+                                ", Departure Time: " + resultSet.getTimestamp("departure_time") +
+                                ", Arrival Time: " + resultSet.getTimestamp("arrival_time") +
+                                ", Available Seats: " + resultSet.getInt("available_seats"));
+                    }
                 }
             } else {
                 System.out.println("Connection to database is null.");

@@ -7,6 +7,8 @@ import org.example.entities.Person;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 public class Main {
@@ -101,17 +103,33 @@ public class Main {
                     String departureLocation = sc.next();
                     System.out.print("Enter destination location: ");
                     String destinationLocation = sc.next();
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    dateFormat.setLenient(false);
                     System.out.print("Enter departure time (YYYY-MM-DD HH:mm:ss):");
                     sc.nextLine();
-                    String departureTime = sc.nextLine();
-                    Timestamp departureTimetype = Timestamp.valueOf(departureTime);
+                    String departureTimeString = sc.nextLine();
+                    Timestamp departureTime = null;
+                    try {
+                        departureTime = new Timestamp(dateFormat.parse(departureTimeString).getTime());
+                    } catch (ParseException e) {
+                        System.out.println("Invalid date format or out of range. Please use the format YYYY-MM-DD HH:mm:ss.");
+                        break;
+                    }
                     System.out.print("Enter arrival time (YYYY-MM-DD HH:mm:ss):");
-                    String arrivalTime = sc.nextLine();
-                    Timestamp arrivalTimetype = Timestamp.valueOf(arrivalTime);
+                    String arrivalTimeString = sc.nextLine();
+                    Timestamp arrivalTime = null;
+                    try {
+                        arrivalTime = new Timestamp(dateFormat.parse(arrivalTimeString).getTime());
+                    } catch (ParseException e) {
+                        System.out.println("Invalid date format or out of range. Please use the format YYYY-MM-DD HH:mm:ss.");
+                        break;
+                    }
                     System.out.print("Enter available seats: ");
                     int availableSeats = sc.nextInt();
-                    FlightDetails flightDetails = new FlightDetails(flightNumber, departureLocation, destinationLocation, departureTimetype, arrivalTimetype,availableSeats);
-                    flightDetails.addFlightDetails(); //inserting to database flight details.
+
+                    FlightDetails flightDetails = new FlightDetails(flightNumber, departureLocation, destinationLocation, departureTime, arrivalTime, availableSeats);
+                    flightDetails.addFlightDetails(); // inserting to database flight details.
                     break;
                 case 2:
                     System.out.print("Enter your phone number: ");
