@@ -112,6 +112,7 @@ public class FlightSystems {
     public void addFlightDetails(String flightnumber, String departure_location, String destination_location, Timestamp departure_time, Timestamp arrival_time, int available_seats) {
         try {
             connection = db.getConnection();
+
             PreparedStatement statement = connection.prepareStatement("INSERT INTO flightdetails (flight_number, departure_location, destination_location, departure_time, arrival_time, available_seats) VALUES (?, ?, ?, ?, ?, ?)");
             statement.setString(1, flightnumber);
             statement.setString(2, departure_location);
@@ -257,5 +258,18 @@ public class FlightSystems {
             System.out.println("Something went wrong: " + e.getMessage());
         }
         return userExists;
+    }
+    //deleting row in reservation and flight details table after date expiration
+    public void deleteExpiredDate(){
+        connection = db.getConnection();
+        try{
+            PreparedStatement deleteReservation = connection.prepareStatement("DELETE FROM reserve WHERE flight_id IN (SELECT flight_id FROM flightdetails WHERE arrival_time <= NOW())");
+            deleteReservation.executeUpdate();
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM flightdetails WHERE arrival_time <= NOW() ");
+            statement.executeUpdate();
+        }
+        catch (SQLException e){
+            System.out.println("Something went wrong: " + e.getMessage());
+        }
     }
 }

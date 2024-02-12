@@ -16,6 +16,7 @@ public class Main {
         FlightSystems system = new FlightSystems(db);
         Person passenger = new Person();
         boolean registered = false;
+        system.deleteExpiredDate();
         while (!registered) {
             System.out.println("Welcome to the Flight Reservation System!");
             System.out.print("Do you have an account already? (y/n): ");

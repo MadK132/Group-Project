@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.FlightSystems;
 import org.example.database.interfaces.IDB;
+import org.example.database.interfaces.PostgresDB;
 
 import java.sql.Timestamp;
 @NoArgsConstructor
@@ -18,7 +19,7 @@ public class FlightDetails{
     private Timestamp departure_time;
     private Timestamp arrival_time;
     private int available_seats;
-    private IDB db;
+    IDB db = new PostgresDB();
     public FlightDetails(String flight_number, String from, String to, Timestamp from_time, Timestamp to_time, int seats){
         setId();
         setFlight_number(flight_number);
