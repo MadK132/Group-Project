@@ -47,7 +47,11 @@ public class Main {
                     String input = sc.next();
                     if (input.equalsIgnoreCase("b")) {
                         break; // Go back to the previous step
-                    } else {
+                    } else if (!input.matches("\\d+")) {
+                        System.out.println("Phone number should contain only digits.");
+                    }else if(input.length() != 11){
+                        System.out.println("Phone number should be 11 digits long");
+                    }else {
                         phone_number = input;
                         // Check if the phone number already exists in the database.
                         if (system.checkExistingUser(phone_number)) {
